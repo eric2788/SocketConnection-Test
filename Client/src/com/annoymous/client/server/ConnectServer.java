@@ -17,6 +17,8 @@ public class ConnectServer {
     public Socket getSocket(){
         try {
             socket = new Socket(host,port);
+            socket.setSoTimeout(10000);
+            socket.setKeepAlive(true);
             return socket;
         } catch (IOException e) {
             e.printStackTrace();

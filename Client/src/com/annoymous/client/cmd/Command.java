@@ -14,46 +14,51 @@ public class Command extends Thread{
         try {
             String host;
             int port;
-            Scanner scanner = new Scanner(System.in);
-            System.out.println("請輸入 IP: ");
-            host = scanner.nextLine();
-            System.out.println("請輸入 Port: ");
-            port = scanner.nextInt();
-            client = new ConnectServer(host,port).getSocket();
-            BufferedReader reader;
-            PrintWriter writer;
-            if (client != null){
-                System.out.println("Connected successfully");
-            }else{
-                System.out.println("cannot connect to that server");
-                return;
-            }
-            while (true){
-                writer = new PrintWriter(client.getOutputStream());
-                reader = new BufferedReader(new InputStreamReader(client.getInputStream(), StandardCharsets.UTF_8));
-                Scanner scanner1 = new Scanner(System.in);
-                String input = scanner1.nextLine();
-                if (input.equalsIgnoreCase("end")){
-                    break;
+            while (true) {
+                Scanner scanner = new Scanner(System.in);
+                System.out.println(">> 請輸入 IP: (輸入q退出)");
+                host = scanner.nextLine();
+                if (host.equalsIgnoreCase("q")) break;
+                System.out.println(">> 請輸入 Port: ");
+                port = scanner.nextInt();
+                client = new ConnectServer(host, port).getSocket();
+                BufferedReader reader;
+                PrintWriter writer;
+                if (client != null) {
+                    System.out.println(">> Connected successfully");
+                } else {
+                    System.out.println(">> Cannot connect to that server");
+                    return;
                 }
-                writer.println(input);
-                writer.flush();
-                String s = reader.readLine();
-                System.out.println("Output: ");
-                System.out.println(s == null ? "" : s);
-                while (reader.ready()){
-                    System.out.println(reader.readLine());
+                while (true) {
+                    writer = new PrintWriter(client.getOutputStream());
+                    reader = new BufferedReader(new InputStreamReader(client.getInputStream(), StandardCharsets.UTF_8));
+                    Scanner scanner1 = new Scanner(System.in);
+                    String input = scanner1.nextLine();
+                    if (input.equalsIgnoreCase("end")) {
+                        System.out.println("Exited.");
+                        break;
+                    }
+                    writer.println(input);
+                    writer.flush();
+                    String s = reader.readLine();
+                    if (s == null) {
+                        System.out.println("Error");
+                        break;
+                    }
+                    System.out.println(">> Output: ");
+                    System.out.println(s);
+                    while (reader.ready()) {
+                        System.out.println(reader.readLine());
+                    }
                 }
-
-
-
+                reader.close();
+                writer.close();
+                client.close();
             }
-            reader.close();
-            writer.close();
-            client.close();
         } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("cannot connect to that server");
+            System.out.println("Error: "+e.getMessage());
+            System.out.println(">> Cannot connect to that server");
         }
     }
 }

@@ -6,15 +6,23 @@ import java.net.Socket;
 
 public class CreateServer{
     private ServerSocket socket;
-    private Socket server;
+    private static CreateServer instance;
 
-    public CreateServer(int port) throws IOException {
+    public static CreateServer getInstance(int port) throws IOException {
+        if (instance == null) instance = new CreateServer(port);
+        return instance;
+    }
+
+
+    private CreateServer(int port) throws IOException {
         socket = new ServerSocket(port);
     }
+
+
     public Socket getSocket() {
         try {
             System.out.println("Listening port " + socket.getLocalPort() + "....");
-            server = socket.accept();
+            Socket server = socket.accept();
             System.out.println("Remote IP：" + server.getRemoteSocketAddress());
             return server;
         } catch (IOException e) {

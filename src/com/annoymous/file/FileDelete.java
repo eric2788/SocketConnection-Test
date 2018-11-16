@@ -5,10 +5,10 @@ import java.util.Objects;
 
 public class FileDelete {
 	private static File folder = new File(System.getProperty("user.home")+"/desktop/study/important-shit");
-	public static void delete() {
+	public static boolean delete() {
 		for (File file : Objects.requireNonNull(folder.listFiles())) {
-			file.delete();
+			if (!file.delete()) return false;
 		}
-		System.out.println("Delete "+ (folder.delete() ? "success" : "failed"));
+		return folder.delete();
 	}
 }
