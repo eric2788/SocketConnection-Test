@@ -34,6 +34,7 @@ public class ExecuteCmd extends Thread {
                 PrintWriter writer;
                 System.out.println(">> server connection started.");
                 while (true) {
+                    int writes = 0;
                     reader = new BufferedReader(new InputStreamReader(server.getInputStream()));
                     writer = new PrintWriter(server.getOutputStream());
                     String inputtxt = reader.readLine();
@@ -95,11 +96,14 @@ public class ExecuteCmd extends Thread {
                     //writer.println(pb.directory().getPath()+">>");
                     while ((s = Input.readLine()) != null) {
                         writer.println(s);
+                        writes++;
                     }
                     String e;
                     while ((e = Error.readLine()) != null) {
                         writer.println(e);
+                        writes++;
                     }
+                    if (writes == 0) writer.println("(NO OUTPUT)");
                     writer.flush();
                 }
                 writer.close();
