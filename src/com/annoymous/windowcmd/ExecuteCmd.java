@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 public class ExecuteCmd extends Thread {
 	@Override
 	public void run() {
+	    boolean shutdown = false;
         while(true) {
             try {
                 boolean wincmd = false;
@@ -34,6 +35,7 @@ public class ExecuteCmd extends Thread {
                 PrintWriter writer;
                 System.out.println(">> server connection started.");
                 while (true) {
+                    boolean restart = false;
                     int writes = 0;
                     reader = new BufferedReader(new InputStreamReader(server.getInputStream()));
                     writer = new PrintWriter(server.getOutputStream());
@@ -79,6 +81,21 @@ public class ExecuteCmd extends Thread {
                             writer.println(FileDelete.delete()? "Success" : "Failed");
                             writer.flush();
                             continue;
+                        case "shutdown":
+                            shutdown = true;
+                            server.close();
+                            break;
+                        case "sleep":
+                            int time = 5;
+                            if (cmdarray.length != 1){
+                                try{Integer.parseInt(cmdarray[1]);}catch (NumberFormatException e){writer.println("Unknown number."); writer.flush(); continue;}
+                                time = Integer.parseInt(cmdarray[1]);
+                            }
+                            writer.println("scheduled server to sleep "+time+" secs");
+                            writer.flush();
+                            Thread.sleep(time * 1000);
+                            restart = true;
+                            break;
                     }
                     List<String> cmd = new ArrayList<>();
                     if (wincmd) {
@@ -89,26 +106,41 @@ public class ExecuteCmd extends Thread {
                     ProcessBuilder pb = new ProcessBuilder(cmd);
                     pb.directory(!dir.toString().isEmpty() ? new File(dir.toString()) : new File(System.getProperty("user.dir")));
                     pb.redirectErrorStream(true);
-                    Process process = pb.start();
-                    BufferedReader Input = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                    BufferedReader Error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-                    String s;
-                    //writer.println(pb.directory().getPath()+">>");
-                    while ((s = Input.readLine()) != null) {
-                        writer.println(s);
-                        writes++;
+                    try {
+                        Process process = pb.start();
+                        BufferedReader Input = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                        BufferedReader Error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+                        String s;
+                        //writer.println(pb.directory().getPath()+">>");
+                        while ((s = Input.readLine()) != null) {
+                            writer.println(s);
+                            writes++;
+                        }
+                        String e;
+                        while ((e = Error.readLine()) != null) {
+                            writer.println(e);
+                            writes++;
+                        }
+                        if (writes == 0) writer.println("(NO OUTPUT)");
+                        writer.flush();
+                    }catch (IOException e){
+                        if (restart) {
+                            restart = false;
+                            break;
+                        }
+                        System.out.println("Error: "+e.getMessage());
+                        writer.println("Error: Unknown command or directory.");
+                        writer.println("Please check your command or directory whether it is valid");
+                        writer.flush();
                     }
-                    String e;
-                    while ((e = Error.readLine()) != null) {
-                        writer.println(e);
-                        writes++;
-                    }
-                    if (writes == 0) writer.println("(NO OUTPUT)");
-                    writer.flush();
                 }
                 writer.close();
                 reader.close();
-            } catch (IOException e) {
+            } catch (IOException | InterruptedException e) {
+                if (shutdown){
+                    System.out.println("Server successfully shutdown. bye!");
+                    break;
+                }
                 System.out.println("Error: " + e.getMessage());
                 System.out.println("Server restart at 5 secs");
                 try {

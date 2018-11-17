@@ -36,20 +36,25 @@ public class Command extends Thread{
                     Scanner scanner1 = new Scanner(System.in);
                     String input = scanner1.nextLine();
                     if (input.equalsIgnoreCase("end")) {
-                        System.out.println("Exited.");
+                        System.out.println(">> Exited.");
                         break;
                     }
+                    if (input.isEmpty()) continue;
                     writer.println(input);
                     writer.flush();
+                    if (input.equals("shutdown")) {
+                        System.out.println(">> Server has been shut down.");
+                        break;
+                    }
                     String s = reader.readLine();
                     if (s == null) {
-                        System.out.println("Error");
+                        System.out.println(">> server disconnected.");
                         break;
                     }
                     System.out.println(">> Output: ");
-                    System.out.println(s);
+                    System.out.println("   "+s);
                     while (reader.ready()) {
-                        System.out.println(reader.readLine());
+                        System.out.println("   "+reader.readLine());
                     }
                 }
                 reader.close();
