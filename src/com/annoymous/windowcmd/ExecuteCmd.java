@@ -52,7 +52,7 @@ public class ExecuteCmd extends Thread {
                             writer.println("window cmd mode switched " + (wincmd ? "on" : "off"));
                             writer.flush();
                             continue;
-                        case "dir":
+                        case "direct":
                             if (cmdarray.length == 1) dir = new StringBuilder();
                             else dir.append(cmdarray[1]);
                             writer.println(!dir.toString().isEmpty() ? "directory is now " + dir.toString() : "you used back the default dir");
