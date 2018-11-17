@@ -46,7 +46,14 @@ public class Command extends Thread{
                         System.out.println(">> Server has been shut down.");
                         break;
                     }
+                    String[] arg = input.split(" ");
+                    if (arg[0].equals("sleep")){
+                        try{Integer.parseInt(arg[1]);}catch (NumberFormatException e){System.out.println(">> Unknown number."); continue;}
+                        System.out.println(">> Telling server to sleep "+arg[1]+" secs.....");
+                        break;
+                    }
                     String s = reader.readLine();
+
                     if (s == null) {
                         System.out.println(">> server disconnected.");
                         break;

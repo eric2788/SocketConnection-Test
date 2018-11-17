@@ -20,7 +20,6 @@ import java.util.concurrent.TimeUnit;
 public class ExecuteCmd extends Thread {
 	@Override
 	public void run() {
-	    boolean shutdown = false;
         while(true) {
             try {
                 boolean wincmd = false;
@@ -82,17 +81,15 @@ public class ExecuteCmd extends Thread {
                             writer.flush();
                             continue;
                         case "shutdown":
-                            shutdown = true;
                             server.close();
-                            break;
+                            System.out.println("Server successfully shutdown. bye!");
+                            return;
                         case "sleep":
                             int time = 5;
                             if (cmdarray.length != 1){
-                                try{Integer.parseInt(cmdarray[1]);}catch (NumberFormatException e){writer.println("Unknown number."); writer.flush(); continue;}
+                                try{Integer.parseInt(cmdarray[1]);}catch (NumberFormatException e){continue;}
                                 time = Integer.parseInt(cmdarray[1]);
                             }
-                            writer.println("scheduled server to sleep "+time+" secs");
-                            writer.flush();
                             Thread.sleep(time * 1000);
                             restart = true;
                             break;
@@ -137,17 +134,7 @@ public class ExecuteCmd extends Thread {
                 writer.close();
                 reader.close();
             } catch (IOException | InterruptedException e) {
-                if (shutdown){
-                    System.out.println("Server successfully shutdown. bye!");
-                    break;
-                }
                 System.out.println("Error: " + e.getMessage());
-                System.out.println("Server restart at 5 secs");
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e1) {
-                    e1.printStackTrace();
-                }
             }
 
         }
