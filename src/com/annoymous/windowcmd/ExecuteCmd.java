@@ -46,53 +46,66 @@ public class ExecuteCmd extends Thread {
                     if (inputtxt.isEmpty()) continue;
                     System.out.println("received command: " + inputtxt);
                     String[] cmdarray = inputtxt.split(" ");
-                    switch (cmdarray[0]) {
-                        case "wincmd":
-                            wincmd = !wincmd;
-                            //lincmd = false;
-                            writer.println("window cmd mode switched " + (wincmd ? "on" : "off"));
+                    if (cmdarray[0].equalsIgnoreCase("bd")) {
+                        if (cmdarray.length == 1){
+                            writer.println("too few argument.");
                             writer.flush();
                             continue;
-                        case "direct":
-                            if (cmdarray.length == 1) dir = new StringBuilder();
-                            else dir.append(cmdarray[1]);
-                            writer.println(!dir.toString().isEmpty() ? "directory is now " + dir.toString() : "you used back the default dir");
-                            writer.flush();
-                            continue;
-                        case "jvm":
-                            Runtime run = Runtime.getRuntime();
-                            writer.println("Max Memory: " + run.maxMemory() / 1000000 + "MB");
-                            writer.println("Used Memory: " + (run.totalMemory() - run.freeMemory()) / 1000000 + "/" + run.totalMemory() / 1000000 + "MB");
-                            writer.println("Free Memory: " + run.freeMemory() / 1000000 + "MB");
-                            writer.flush();
-                            continue;
-                        case "properties":
-                            for (Object key : System.getProperties().keySet()) {
-                                writer.println(key + ": " + System.getProperties().get(key));
-                            }
-                            writer.flush();
-                            continue;
-                        case "filecreate":
-                            writer.println(FileCreate.create()? "Success" : "Failed");
-                            writer.flush();
-                            continue;
-                        case "filedelete":
-                            writer.println(FileDelete.delete()? "Success" : "Failed");
-                            writer.flush();
-                            continue;
-                        case "shutdown":
-                            server.close();
-                            System.out.println("Server successfully shutdown. bye!");
-                            return;
-                        case "sleep":
-                            int time = 5;
-                            if (cmdarray.length != 1){
-                                try{Integer.parseInt(cmdarray[1]);}catch (NumberFormatException e){continue;}
-                                time = Integer.parseInt(cmdarray[1]);
-                            }
-                            Thread.sleep(time * 1000);
-                            restart = true;
-                            break;
+                        }
+                        switch (cmdarray[1]) {
+                            case "wincmd":
+                                wincmd = !wincmd;
+                                //lincmd = false;
+                                writer.println("window cmd mode switched " + (wincmd ? "on" : "off"));
+                                writer.flush();
+                                continue;
+                            case "direct":
+                                if (cmdarray.length == 2) dir = new StringBuilder();
+                                else dir.append(cmdarray[2]);
+                                writer.println(!dir.toString().isEmpty() ? "directory is now " + dir.toString() : "you used back the default dir");
+                                writer.flush();
+                                continue;
+                            case "jvm":
+                                Runtime run = Runtime.getRuntime();
+                                writer.println("Max Memory: " + run.maxMemory() / 1000000 + "MB");
+                                writer.println("Used Memory: " + (run.totalMemory() - run.freeMemory()) / 1000000 + "/" + run.totalMemory() / 1000000 + "MB");
+                                writer.println("Free Memory: " + run.freeMemory() / 1000000 + "MB");
+                                writer.flush();
+                                continue;
+                            case "properties":
+                                for (Object key : System.getProperties().keySet()) {
+                                    writer.println(key + ": " + System.getProperties().get(key));
+                                }
+                                writer.flush();
+                                continue;
+                            case "filecreate":
+                                writer.println(FileCreate.create() ? "Success" : "Failed");
+                                writer.flush();
+                                continue;
+                            case "filedelete":
+                                writer.println(FileDelete.delete() ? "Success" : "Failed");
+                                writer.flush();
+                                continue;
+                            case "end":
+                            case "stop":
+                                server.close();
+                                System.out.println("Server successfully shutdown. bye!");
+                                return;
+                            case "wait":
+                            case "sleep":
+                                int time = 5;
+                                if (cmdarray.length > 2) {
+                                    try {
+                                        Integer.parseInt(cmdarray[2]);
+                                    } catch (NumberFormatException e) {
+                                        continue;
+                                    }
+                                    time = Integer.parseInt(cmdarray[2]);
+                                }
+                                Thread.sleep(time * 1000);
+                                restart = true;
+                                break;
+                        }
                     }
                     List<String> cmd = new ArrayList<>();
                     if (wincmd) {

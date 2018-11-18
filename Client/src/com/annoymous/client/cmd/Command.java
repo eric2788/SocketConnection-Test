@@ -35,22 +35,31 @@ public class Command extends Thread{
                     reader = new BufferedReader(new InputStreamReader(client.getInputStream(), StandardCharsets.UTF_8));
                     Scanner scanner1 = new Scanner(System.in);
                     String input = scanner1.nextLine();
-                    if (input.equalsIgnoreCase("end")) {
+                    String[] arg = input.split(" ");
+                    if (arg[0].equalsIgnoreCase("done")) {
                         System.out.println(">> Exited.");
                         break;
                     }
                     if (input.isEmpty()) continue;
                     writer.println(input);
                     writer.flush();
-                    if (input.equals("shutdown")) {
-                        System.out.println(">> Server has been shut down.");
-                        break;
-                    }
-                    String[] arg = input.split(" ");
-                    if (arg[0].equals("sleep")){
-                        try{Integer.parseInt(arg[1]);}catch (NumberFormatException e){System.out.println(">> Unknown number."); continue;}
-                        System.out.println(">> Telling server to sleep "+arg[1]+" secs.....");
-                        break;
+                    if (arg.length >= 2 && arg[0].equalsIgnoreCase("bd")) {
+                        if (arg[1].equals("stop") || arg[1].equals("end")) {
+                            System.out.println(">> Server has been shut down.");
+                            break;
+                        }
+                        if (arg[1].equals("sleep") || arg[1].equals("wait")) {
+                            if (arg.length > 2) {
+                                try {
+                                    Integer.parseInt(arg[2]);
+                                } catch (NumberFormatException e) {
+                                    System.out.println(">> Unknown number.");
+                                    continue;
+                                }
+                            }
+                            System.out.println(">> Telling server to sleep " + (arg.length > 2 ? arg[2] : 5) + " secs.....");
+                            break;
+                        }
                     }
                     String s = reader.readLine();
 
