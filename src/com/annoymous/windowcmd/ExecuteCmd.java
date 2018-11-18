@@ -36,7 +36,7 @@ public class ExecuteCmd extends Thread {
                 while (true) {
                     boolean restart = false;
                     int writes = 0;
-                    reader = new BufferedReader(new InputStreamReader(server.getInputStream()));
+                    reader = new BufferedReader(new InputStreamReader(server.getInputStream(), StandardCharsets.UTF_8));
                     writer = new PrintWriter(server.getOutputStream());
                     String inputtxt = reader.readLine();
                     if (inputtxt == null) {
